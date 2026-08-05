@@ -2,7 +2,7 @@
 
 A **minimal transparent analog clock** built with **PySide6 / Qt6**. A frameless,
 borderless widget that draws thin hands directly with QPainter — no SVG assets or
-heavy graphics toolkit required.
+heavy graphics toolkit required. The design is a rip-off Analog-Chronometer.
 
 ![Clock](screenshot_minimal.png)
 
