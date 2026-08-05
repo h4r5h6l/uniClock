@@ -1,119 +1,84 @@
-# Analog Clock Widget
+# Minimal Clock
 
-A portable **GTK3 desktop clock widget** — a rewrite of the Cinnamon desklet
-[`clock@schorschii`](https://github.com/linuxmint/cinnamon-spices-desklets)
-that runs on **any Linux distribution** with Python 3 and GTK3, no Cinnamon
-required.
+A **minimal transparent analog clock** built with **PySide6 / Qt6**. A frameless,
+borderless widget that draws thin hands directly with QPainter — no SVG assets or
+heavy graphics toolkit required.
 
-![Clock](screenshot.png)
+![Clock](screenshot_minimal.png)
 
 ## Features
 
-- Analog clock with **smooth hands** (deactivatable for older hardware)
-- **5 built-in themes**: Light, Dark, Light Transparent, Dark Transparent, Semitransparent
-- **Custom images**: use your own background / hour / minute / second hand graphics
-- **Custom timezone** (IANA names, e.g. `Europe/London`)
-- **Custom label** above the clock (e.g. for multi-timezone setups)
-- **Frameless widget mode**: drag it anywhere, right-click for settings
-- **Multiple instances**: run several clocks with different styles/timezones
-- Settings saved to `~/.config/clock-widget/config.json`
+- Transparent, frameless, always-on-top window
+- Smooth or tick-based hand animation (deactivatable to save CPU)
+- **2 colors**: white and black, plus a semi-transparent white option
+- Configurable radius (40–300 px)
+- Per-clock **IANA timezone** support (e.g. `Europe/London`)
+- **Up to 2 clocks** side by side
+- **KWin / Wayland integration**: keeps window on all desktops and remembers
+  position (via D-Bus)
+- Settings saved to `~/.config/minimal-clock/config.json`
 
 ## Requirements
 
-- Python 3
-- PyGObject (`gi`) with GTK 3
-- GdkPixbuf with SVG support
-
-Install on your distro:
-
-| Distro | Command |
-|---|---|
-| Ubuntu / Debian / Mint | `sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-gdkpixbuf-2.0` |
-| Fedora | `sudo dnf install python3-gobject gtk3` |
-| Arch / Manjaro | `sudo pacman -S python-gobject gtk3` |
-| openSUSE | `sudo zypper install python3-gobject gtk3` |
-
-## Run (no install)
+- Python 3.10+
+- PySide6 (Qt6)
 
 ```bash
-python3 clock.py
+pip install -r requirements.txt   # installs pyside6
 ```
 
-## Install (optional, no root)
+System packages for Qt6 may also be needed on some distros.
+
+## Run
 
 ```bash
-./install.sh            # installs to ~/.local/share/clock-widget + menu entry
-./install.sh --no-menu  # skip the desktop menu entry
-./install.sh --uninstall
+python3 minimal_clock.py
 ```
-
-After installing, launch from your application menu ("Analog Clock Widget") or:
-
-```bash
-~/.local/share/clock-widget/clock.py
-```
-
-To start at login, add that command to your desktop's "Startup Applications".
-
-## Usage
-
-- **Left-click + drag** — move the clock (only in frameless widget mode)
-- **Right-click** — settings, always on top, lock position, quit
 
 ### Command line
 
 ```
-python3 clock.py --help
+python3 minimal_clock.py --help
 
-  --size 300                 Clock size in pixels (10-500)
-  --style dark               light | dark | light_transparent | dark_transparent |
-                             semi_transparent | custom-images
-  --show-seconds             Show the seconds hand
-  --hide-seconds             Hide the seconds hand
-  --no-smooth-seconds        Disable smooth seconds hand (saves CPU)
-  --no-smooth-minutes        Disable smooth minutes hand
-  --label "London"           Custom label above the clock
-  --timezone Europe/London   IANA timezone
-  --position 100 200         Initial window position
-  --keep-above               Keep above other windows
-  --frameless / --decorated  Widget mode vs. normal window
-  --img-bg / --img-seconds / --img-minutes / --img-hours PATH
-                             Custom images (with --style custom-images)
-  --config PATH              Use a different config file
+  --config PATH       Config file path
+  --radius N          Clock radius in pixels (40-300)
+  --size N            Window size (alias for --radius)
+  --color NAME        Hand color (white, black, semi-transparent)
+  --keep-above        Keep window above others
+  --no-smooth         Tick once per second (saves CPU)
+  --timezone TZ       IANA timezone for the first clock (e.g. Europe/London)
 ```
 
 ### Multiple clocks
 
-Run several instances with different options, e.g.:
+Up to 2 clocks can run in a single instance. Set timezones via the right-click
+**Settings** panel, or at launch:
 
 ```bash
-python3 clock.py --style dark --timezone Europe/London --label "London" --position 50 50
-python3 clock.py --style light --timezone America/New_York --label "NYC" --position 400 50
+python3 minimal_clock.py --timezone Europe/London --keep-above
 ```
 
-## Performance notes
+## Usage
 
-- The **smooth seconds hand** redraws every 100 ms. On older hardware, disable it
-  (`--no-smooth-seconds` or Settings → Visual) to reduce CPU usage.
-- When the seconds hand is hidden, the clock only redraws every 3 seconds.
+- **Left-click + drag** — move the clock
+- **Right-click** — Settings, Always on top, Quit
+
+### Performance
+
+With smooth animation the clock redraws every 100 ms. Disable it
+(`--no-smooth`) to redraw every second, reducing CPU on slower hardware.
 
 ## Project structure
 
 ```
-clock.py                 Entry point + CLI
+minimal_clock.py      Entry point + CLI
 src/
-  config.py              JSON config (~/.config/clock-widget/config.json)
-  theme.py               Theme → image path resolution
-  clock_widget.py        Clock drawing (Gtk.DrawingArea + cairo)
-  clock_window.py        Widget window, drag, context menu, settings dialog
-assets/
-  img/<theme>/           SVG clock faces (bg, h, m, s) for each theme
-  icon.png               App icon
-install.sh               User-level installer (no root)
+  config.py           Config paths, constants, load/save JSON
+  clock_widget.py     Clock drawing (QPainter) + window drag/menu
+  manager.py          Window spawning, settings, KWin integration
+  settings_window.py  Right-click settings panel
+  kwin.py             KWin / Wayland D-Bus helpers
+tools/
+  verify_hands.py     Render-test: verify hand angles at a known time
+  verify_live_config.py  Render-test: verify with live config
 ```
-
-## Credits
-
-- Original Cinnamon desklet code and themes by **schorschii**
-- "Light transparent" and "Dark transparent" themes by **claudiux**
-- GTK3/Python port by this project
