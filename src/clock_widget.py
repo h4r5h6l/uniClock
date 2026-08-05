@@ -99,11 +99,11 @@ class ClockWidget(QWidget):
             cx = i * (face + gap) + face / 2
             center = QPoint(cx, center_y)
 
-            self._draw_circle(painter, center, radius, hand_color, 1.2)
-            for hour in range(12):
-                major = hour % 3 == 0
-                self._draw_tick(painter, center, radius, hand_color, hour * 30.0,
-                                0.92 if major else 0.95, 0.84, 2.5 if major else 1.5)
+            for minute in range(60):
+                is_hour = minute % 5 == 0
+                self._draw_tick(painter, center, radius, hand_color, minute * 6.0,
+                                0.88 if is_hour else 0.93, 0.84,
+                                1.2 if is_hour else 2.5)
 
             self._draw_hand(painter, center, radius, hand_color, hours * 30.0, 0.42, 5.0)
             self._draw_hand(painter, center, radius, hand_color, minutes * 6.0, 0.62, 3.0)
@@ -120,12 +120,6 @@ class ClockWidget(QWidget):
         painter.drawLine(start, end)
         painter.setPen(QPen(color, width, Qt.SolidLine, Qt.RoundCap))
         painter.drawLine(start, end)
-
-    def _draw_circle(self, painter, center, radius, color, width):
-        painter.setPen(QPen(self._shadow, width + 3.0))
-        painter.drawEllipse(center, radius, radius)
-        painter.setPen(QPen(color, width))
-        painter.drawEllipse(center, radius, radius)
 
     def _draw_tick(self, painter, center, radius, color, angle_deg, outer_ratio, inner_ratio, width):
         rad = math.radians(angle_deg - 90.0)
