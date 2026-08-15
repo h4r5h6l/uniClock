@@ -1,0 +1,14 @@
+{
+  "size": 150,
+  "circle_color": "#E63965",
+  "tick_color": "#FFFFFF",
+  "minute_tick_color": "#FFD5DE",
+  "hand_color": "#FFFFFF",
+  "second_color": "#FFD166",
+  "show_second_hand": true,
+  "smooth_hands": true,
+  "always_on_top": true,
+  "opacity": 0.2,
+  "x": 1311,
+  "y": 812
+}
